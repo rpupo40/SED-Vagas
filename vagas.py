@@ -1,4 +1,4 @@
-#pip install PyPDF2 pandas selenium chromedriver_autoinstaller tabula-py openpyxl jpype1
+#pip install PyPDF2 pandas selenium chromedriver_autoinstaller tabula-py openpyxl pip install jpype1
 
 
 import time
@@ -9,7 +9,6 @@ import pandas as pd
 from selenium import webdriver
 import chromedriver_autoinstaller
 from selenium.webdriver.chrome.service import Service
-from selenium.webdriver.chrome.options import Options
 import tkinter as tk
 from tkinter import simpledialog
 import tabula
@@ -30,11 +29,6 @@ chrome_options.add_experimental_option("prefs", prefs)
 
 # Configurar o serviço do WebDriver
 servico = Service()
-
-# Exibir mensagem de início
-# mensagem = "Realizando os Downloads, esse processo pode demorar"
-# titulo = "INICIO"
-# ctypes.windll.user32.MessageBoxW(0, mensagem, titulo, 1)
 
 # Digitar dados de login
 root = tk.Tk()
@@ -60,10 +54,6 @@ time.sleep(2)
 navegador.find_element('xpath', '//*[@id="sedUiModalWrapper_1body"]/ul/li[2]/a').click()
 time.sleep(2)
 
-# Fechar um aviso
-# navegador.find_element('xpath', '//*[@id="sedUiModalWrapper_1close"]').click()
-# time.sleep(3)
-
 # Digitar matricular aluno
 navegador.find_element('xpath', '//*[@id="decorMenuFilterTxt"]').send_keys("Matricular Aluno")
 time.sleep(3)
@@ -79,19 +69,19 @@ for cie in codigocie:
     navegador.find_element('xpath', '/html/body/div[3]/div/div/main/div[1]/form/div/div/div/fieldset/div[1]/div/div/div/div[2]/ul/li[3]/a/span').click()
     time.sleep(3)
     navegador.find_element('xpath', '//*[@id="codigoEscolaCIE"]').send_keys(str(cie))
-    time.sleep(4)
+    time.sleep(3)
     navegador.find_element('xpath', '//*[@id="btnPesquisar"]').click()
-    time.sleep(4)
+    time.sleep(3)
     navegador.find_element('xpath', '//*[@id="btnPesquisar"]').click()
-    time.sleep(4)
+    time.sleep(3)
     # Geral pdf
     navegador.find_element('xpath', '/html/body/div[3]/div/div/main/div[2]/div/div/div[1]/button[5]').click()
-    time.sleep(4)
+    time.sleep(3)
     navegador.find_element('xpath', '/html/body/div[5]/div/div/div[3]/button[1]').click()
-    time.sleep(10)
+    time.sleep(9)
     # Limpar
     navegador.find_element('xpath', '/html/body/div[3]/div/div/main/div[1]/form/div/div/div/fieldset/div[6]/button[2]').click()
-    time.sleep(4)
+    time.sleep(3)
 
 # Fechar navegador
 navegador.quit()
@@ -114,6 +104,7 @@ else:
             juntar.append(caminho_arquivo)
 
         juntar.write(saida_pdf)
+        juntar.close()
 time.sleep(2)
 
 # Exibir mensagem de início
@@ -167,13 +158,15 @@ for column in columns_to_fix:
     combined_df[column] = combined_df[column].apply(fix_paragraphs)
 
 # Salvar o DataFrame combinado em um novo arquivo Excel
-combined_df.to_excel(r"C:\vagas\compilado.xlsx", index=False)
+with pd.ExcelWriter(r"C:\vagas\compilado.xlsx", engine='openpyxl') as writer:
+    combined_df.to_excel(writer, index=False)
 
 # Reordenar as colunas
 combined_df = combined_df[['Série', 'Turma'] + [col for col in combined_df.columns if col not in ['Série', 'Turma']]]
 
 # Salvar o DataFrame combinado em um novo arquivo Excel
-combined_df.to_excel(r"C:\vagas\compilado.xlsx", index=False)
+with pd.ExcelWriter(r"C:\vagas\compilado.xlsx", engine='openpyxl') as writer:
+    combined_df.to_excel(writer, index=False)
 
 # Alterar nomes da planilha
 # Carregar o arquivo compilado.xlsx
@@ -198,21 +191,22 @@ condicoes = planilhaNova['Turma'].str.contains('2° ANO|3° ANO|4° ANO|5° ANO'
 # Aplicar a função apenas às linhas filtradas e atribuir o resultado à coluna 'Série'
 planilhaNova.loc[condicoes, 'Série'] = planilhaNova.loc[condicoes, 'Turma'].apply(atualizar_serie)
 
-# Salvar as alterações de volta ao arquivo compilado.xlsx
-planilhaNova.to_excel(r"C:\vagas\final.xlsx", index=False)
+# Salvar as alterações de volta ao arquivo final.xlsx
+with pd.ExcelWriter(r"C:\vagas\final.xlsx", engine='openpyxl') as writer:
+    planilhaNova.to_excel(writer, index=False)
 
 # Exibir mensagem de conclusão
 mensagem = "Trabalho Concluído"
 titulo = "Final"
 ctypes.windll.user32.MessageBoxW(0, mensagem, titulo, 1)
 
+# Deletar arquivos desnecessários
+arquivos_a_deletar = [
+    r"C:\vagas\compilado.xlsx",
+    r"C:\vagas\separados.xlsx",
+    r"C:\vagas\juntoMatricula.pdf"
+]
 
-
-
-# Definir caminhos dos arquivos a serem deletados
-arquivos_a_deletar = [r"C:\vagas\compilado.xlsx",r"C:\vagas\separados.xlsx",r"C:\vagas\juntoMatricula.pdf"]
-
-# Deletar os arquivos especificados
 for arquivo in arquivos_a_deletar:
     if os.path.exists(arquivo):
         os.remove(arquivo)
@@ -222,7 +216,7 @@ pasta_baixados = r"C:\vagas\baixados"
 if os.path.exists(pasta_baixados):
     shutil.rmtree(pasta_baixados)
 
-# Exibir mensagem de conclusão
+# Exibir mensagem de conclusão da limpeza
 mensagem = "Arquivos temporários deletados. Trabalho Concluído"
 titulo = "Final"
 ctypes.windll.user32.MessageBoxW(0, mensagem, titulo, 1)
