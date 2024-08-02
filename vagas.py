@@ -1,4 +1,4 @@
-#pip install PyPDF2 pandas selenium chromedriver_autoinstaller tabula-py openpyxl
+#pip install PyPDF2 pandas selenium chromedriver_autoinstaller tabula-py openpyxl jpype1
 
 
 import time
@@ -13,6 +13,7 @@ from selenium.webdriver.chrome.options import Options
 import tkinter as tk
 from tkinter import simpledialog
 import tabula
+import shutil
 
 # Instalar o ChromeDriver e obter o caminho
 chromedriver_autoinstaller.install()
@@ -78,19 +79,19 @@ for cie in codigocie:
     navegador.find_element('xpath', '/html/body/div[3]/div/div/main/div[1]/form/div/div/div/fieldset/div[1]/div/div/div/div[2]/ul/li[3]/a/span').click()
     time.sleep(3)
     navegador.find_element('xpath', '//*[@id="codigoEscolaCIE"]').send_keys(str(cie))
-    time.sleep(3)
+    time.sleep(4)
     navegador.find_element('xpath', '//*[@id="btnPesquisar"]').click()
-    time.sleep(3)
+    time.sleep(4)
     navegador.find_element('xpath', '//*[@id="btnPesquisar"]').click()
-    time.sleep(3)
+    time.sleep(4)
     # Geral pdf
     navegador.find_element('xpath', '/html/body/div[3]/div/div/main/div[2]/div/div/div[1]/button[5]').click()
-    time.sleep(3)
+    time.sleep(4)
     navegador.find_element('xpath', '/html/body/div[5]/div/div/div[3]/button[1]').click()
-    time.sleep(9)
+    time.sleep(10)
     # Limpar
     navegador.find_element('xpath', '/html/body/div[3]/div/div/main/div[1]/form/div/div/div/fieldset/div[6]/button[2]').click()
-    time.sleep(3)
+    time.sleep(4)
 
 # Fechar navegador
 navegador.quit()
@@ -202,5 +203,26 @@ planilhaNova.to_excel(r"C:\vagas\final.xlsx", index=False)
 
 # Exibir mensagem de conclusão
 mensagem = "Trabalho Concluído"
+titulo = "Final"
+ctypes.windll.user32.MessageBoxW(0, mensagem, titulo, 1)
+
+
+
+
+# Definir caminhos dos arquivos a serem deletados
+arquivos_a_deletar = [r"C:\vagas\compilado.xlsx",r"C:\vagas\separados.xlsx",r"C:\vagas\juntoMatricula.pdf"]
+
+# Deletar os arquivos especificados
+for arquivo in arquivos_a_deletar:
+    if os.path.exists(arquivo):
+        os.remove(arquivo)
+
+# Deletar a pasta 'baixados' e seu conteúdo
+pasta_baixados = r"C:\vagas\baixados"
+if os.path.exists(pasta_baixados):
+    shutil.rmtree(pasta_baixados)
+
+# Exibir mensagem de conclusão
+mensagem = "Arquivos temporários deletados. Trabalho Concluído"
 titulo = "Final"
 ctypes.windll.user32.MessageBoxW(0, mensagem, titulo, 1)
